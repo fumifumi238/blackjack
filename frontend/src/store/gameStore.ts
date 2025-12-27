@@ -1,22 +1,34 @@
 import { create } from "zustand";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import {
+  StartGameDocument,
+  HitDocument,
+  StandDocument,
+  FetchGameDocument,
+  StartGameMutation,
+  HitMutation,
+  StandMutation,
+  FetchGameQuery,
+} from "../gql/graphql";
 
-import { GraphQLClient, gql } from "graphql-request";
-
-const client = new GraphQLClient("http://localhost:8080/graphql");
+const client = new ApolloClient({
+  link: new HttpLink({ uri: "http://localhost:8080/graphql" }),
+  cache: new InMemoryCache(),
+});
 
 export interface Card {
-  suit: string;
-  rank: string;
-  value: number;
+  suit?: string | null;
+  rank?: string | null;
+  value?: number | null;
 }
 
 export interface Game {
-  id: string;
-  playerHand: Card[];
-  dealerHand: Card[];
-  status: string;
-  playerScore: number;
-  dealerScore: number;
+  id?: string | null;
+  playerHand?: (Card | null)[] | null;
+  dealerHand?: (Card | null)[] | null;
+  status?: string | null;
+  playerScore?: number | null;
+  dealerScore?: number | null;
 }
 
 interface GameState {
@@ -30,90 +42,6 @@ interface GameState {
   fetchGame: (id: string) => Promise<void>;
 }
 
-const START_GAME = gql`
-  mutation StartGame {
-    startGame {
-      id
-      playerHand {
-        suit
-        rank
-        value
-      }
-      dealerHand {
-        suit
-        rank
-        value
-      }
-      status
-      playerScore
-      dealerScore
-    }
-  }
-`;
-
-const HIT = gql`
-  mutation Hit($id: ID!) {
-    hit(id: $id) {
-      id
-      playerHand {
-        suit
-        rank
-        value
-      }
-      dealerHand {
-        suit
-        rank
-        value
-      }
-      status
-      playerScore
-      dealerScore
-    }
-  }
-`;
-
-const STAND = gql`
-  mutation Stand($id: ID!) {
-    stand(id: $id) {
-      id
-      playerHand {
-        suit
-        rank
-        value
-      }
-      dealerHand {
-        suit
-        rank
-        value
-      }
-      status
-      playerScore
-      dealerScore
-    }
-  }
-`;
-
-const FETCH_GAME = gql`
-  query FetchGame($id: ID!) {
-    gameState(id: $id) {
-      id
-      playerHand {
-        suit
-        rank
-        value
-      }
-      dealerHand {
-        suit
-        rank
-        value
-      }
-      status
-      playerScore
-      dealerScore
-    }
-  }
-`;
-
 export const useGameStore = create<GameState>((set, get) => ({
   game: null,
   loading: false,
@@ -122,8 +50,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   startGame: async () => {
     set({ loading: true, error: null });
     try {
-      const data = await client.request(START_GAME);
-      set({ game: data.startGame, loading: false });
+      const result = await client.mutate<StartGameMutation>({
+        mutation: StartGameDocument,
+      });
+      set({ game: result.data?.startGame || null, loading: false });
 
       // Connect WebSocket
       const ws = new WebSocket("ws://localhost:8080/ws");
@@ -138,22 +68,28 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
   hit: async () => {
     const { game } = get();
-    if (!game) return;
+    if (!game?.id) return;
     set({ loading: true, error: null });
     try {
-      const data = await client.request(HIT, { id: game.id });
-      set({ game: data.hit, loading: false });
+      const result = await client.mutate<HitMutation>({
+        mutation: HitDocument,
+        variables: { id: game.id },
+      });
+      set({ game: result.data?.hit || null, loading: false });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
   },
   stand: async () => {
     const { game } = get();
-    if (!game) return;
+    if (!game?.id) return;
     set({ loading: true, error: null });
     try {
-      const data = await client.request(STAND, { id: game.id });
-      set({ game: data.stand, loading: false });
+      const result = await client.mutate<StandMutation>({
+        mutation: StandDocument,
+        variables: { id: game.id },
+      });
+      set({ game: result.data?.stand || null, loading: false });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
@@ -161,8 +97,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   fetchGame: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const data = await client.request(FETCH_GAME, { id });
-      set({ game: data.gameState, loading: false });
+      const result = await client.query<FetchGameQuery>({
+        query: FetchGameDocument,
+        variables: { id },
+      });
+      set({ game: result.data?.gameState || null, loading: false });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }

@@ -6,9 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "codegen": "graphql-codegen --config codegen.config.ts"
   },
   "dependencies": {
+    "@apollo/client": "^4.0.11",
+    "@graphql-codegen/cli": "^6.1.0",
+    "@graphql-codegen/client-preset": "^5.2.2",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "graphql": "^16.12.0",
     "graphql-request": "^7.4.0",
     "next": "16.1.0",
     "react": "19.2.3",
