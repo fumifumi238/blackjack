@@ -1,0 +1,75 @@
+mutation StartGame {
+  startGame {
+    id
+    status
+    playerScore
+    dealerScore
+    playerHand {
+      suit
+      rank
+      value
+    }
+    dealerHand {
+      suit
+      rank
+      value
+    }
+  }
+}
+
+mutation Hit($id: ID!) {
+  hit(id: $id) {
+    id
+    status
+    playerScore
+    dealerScore
+    playerHand {
+      suit
+      rank
+      value
+    }
+    dealerHand {
+      suit
+      rank
+      value
+    }
+  }
+}
+
+mutation Stand($id: ID!) {
+  stand(id: $id) {
+    id
+    status
+    playerScore
+    dealerScore
+    playerHand {
+      suit
+      rank
+      value
+    }
+    dealerHand {
+      suit
+      rank
+      value
+    }
+  }
+}
+
+query FetchGame($id: ID!) {
+  gameState(id: $id) {
+    id
+    status
+    playerScore
+    dealerScore
+    playerHand {
+      suit
+      rank
+      value
+    }
+    dealerHand {
+      suit
+      rank
+      value
+    }
+  }
+}

@@ -7,14 +7,15 @@ export default function Home() {
 
   const renderCard = (card: { suit: string; rank: string }) => {
     const suitSymbols: { [key: string]: string } = {
-      Hearts: '♥',
-      Diamonds: '♦',
-      Clubs: '♣',
-      Spades: '♠',
+      Hearts: "♥",
+      Diamonds: "♦",
+      Clubs: "♣",
+      Spades: "♠",
     };
     return (
       <div className="border rounded p-2 m-1 bg-white text-black text-center">
-        {card.rank}{suitSymbols[card.suit]}
+        {card.rank}
+        {suitSymbols[card.suit]}
       </div>
     );
   };
