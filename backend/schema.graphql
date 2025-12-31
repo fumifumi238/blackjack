@@ -1,16 +1,17 @@
 type Card {
-  suit: String
-  rank: String
-  value: Int
+  suit: String!
+  rank: String!
+  value: Int!
 }
 
 type Game {
   id: ID
-  playerHand: [Card]
-  dealerHand: [Card]
-  status: String
+  playerHand: [Card!]!
+  dealerHand: [Card!]!
+  status: String!
   playerScore: Int
   dealerScore: Int
+  deck: [Card!]!
 }
 
 type Query {
